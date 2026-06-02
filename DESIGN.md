@@ -2,63 +2,144 @@
 
 ## Introduction
 
-This project implements Function Inlining with Dead Code Elimination as an LLVM optimization pass.
+This project implements a cost-based Function Inlining and Dead Code Elimination pass using LLVM.
 
-The optimization is performed on LLVM Intermediate Representation (LLVM IR).
+The pass operates on LLVM Intermediate Representation (LLVM IR) and performs optimization by inlining small functions, removing dead functions generated after inlining, and eliminating unreachable basic blocks.
+
+---
 
 ## Design Goals
 
 * Reduce function call overhead
-* Improve optimization opportunities
+* Enable further compiler optimizations
 * Remove unused functions
+* Eliminate unreachable code
 * Preserve program correctness
+* Prevent recursive function inlining
 
-## Architecture
+---
 
+## System Architecture
+
+```text
 Input LLVM IR
-
-↓
-
+      |
+      v
+Module Traversal
+      |
+      v
 Function Analysis
+      |
+      +------------------+
+      |                  |
+      v                  v
+Instruction Count   Recursive Detection
+      |                  |
+      +--------+---------+
+               |
+               v
+        Inlining Decision
+               |
+               v
+       Call Site Analysis
+               |
+               v
+        InlineFunction()
+               |
+               v
+     Dead Function Removal
+               |
+               v
+removeUnreachableBlocks()
+               |
+               v
+      Optimized LLVM IR
+```
 
-↓
+---
 
-Instruction Count Calculation
+## Function Analysis
 
-↓
+For every function in the module, the pass computes:
 
-Recursive Function Detection
+* Function name
+* Number of arguments
+* Instruction count
+* Recursive status
+* Dead-function status
 
-↓
+The instruction count is used as the inlining cost metric.
 
-Inlining Decision
+---
 
-↓
+## Inlining Heuristic
 
-Dead Code Elimination
+The pass uses a simple cost-based heuristic.
 
-↓
+### Inline Conditions
 
-Optimized LLVM IR
+A function is considered for inlining when:
 
-## Inlining Criteria
+* The function is not recursive
+* The function is defined in the module
+* The instruction count is less than 10
 
-A function is considered for inlining if:
+### Skip Conditions
 
-* It is not recursive
-* Instruction count is below a predefined threshold
-* Function size is small
+Inlining is skipped when:
+
+* The function is recursive
+* The instruction count is greater than or equal to 10
+* The function declaration has no body
+
+---
 
 ## Dead Code Elimination
 
-After inlining:
+After successful inlining:
 
-* Unused functions are identified
-* Functions with no remaining call sites are removed
+* Functions with no remaining users are identified
+* Such functions are removed using `eraseFromParent()`
 
-## Expected Output
+This reduces code size and removes unnecessary definitions.
 
-* Reduced number of function calls
-* Simplified LLVM IR
-* Removal of dead functions
+---
 
+## Unreachable Block Elimination
+
+Inlining may introduce unreachable basic blocks.
+
+The pass removes unreachable blocks using:
+
+```cpp
+removeUnreachableBlocks()
+```
+
+This cleans up the generated LLVM IR.
+
+---
+
+## LLVM Components Used
+
+* Module Pass
+* Function
+* BasicBlock
+* CallBase
+* InlineFunction()
+* InlineFunctionInfo
+* eraseFromParent()
+* removeUnreachableBlocks()
+
+---
+
+## Expected Results
+
+* Small functions are inlined
+* Recursive functions are blocked
+* Large functions are skipped
+* Dead functions are removed
+* Unreachable blocks are eliminated
+* Optimized LLVM IR is generated
+
+```
+```
