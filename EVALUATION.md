@@ -23,12 +23,12 @@ Verify that a small function is selected for inlining.
 ### Result
 
 ```text
-Function: addOne
-Inlining Cost: 5
+Function: add
+Inlining Cost: 8
 Decision: INLINE
 
 INLINE SUCCESS
-REMOVING: addOne
+REMOVING: add
 ```
 
 ### Outcome
@@ -48,7 +48,7 @@ Verify that a large function is not selected for inlining.
 ### Result
 
 ```text
-Function: bigFunction
+Function: compute
 Inlining Cost: 67
 Decision: SKIP
 ```
@@ -155,9 +155,9 @@ The pass successfully analyzed multiple call sites.
 ## Sample Successful Inlining
 
 ```text
-CALL SITE: main -> addOne
+CALL SITE: main -> add
 
-INLINE CANDIDATE: addOne
+INLINE CANDIDATE: add
 
 === PERFORMING INLINING ===
 
@@ -165,7 +165,7 @@ INLINE SUCCESS
 
 === REMOVING DEAD FUNCTIONS ===
 
-REMOVING: addOne
+REMOVING: add
 
 === REMOVING UNREACHABLE BLOCKS ===
 ```

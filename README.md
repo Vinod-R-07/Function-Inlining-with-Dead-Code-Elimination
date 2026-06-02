@@ -121,10 +121,10 @@ Rules:
 ## Sample Output
 
 ```text
-Function: addOne
-Arguments: 1
-Instructions: 5
-Inlining Cost: 5
+Function: add
+Arguments: 2
+Instructions: 8
+Inlining Cost: 8
 Recursive: NO
 Dead Function: NO
 Decision: INLINE
