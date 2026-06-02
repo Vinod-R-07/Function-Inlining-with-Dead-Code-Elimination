@@ -1,57 +1,209 @@
 # Implementation
 
-## LLVM Pass Framework
+## Overview
 
-The project is implemented as an LLVM optimization pass.
+The project is implemented as an LLVM Module Pass that performs cost-based function inlining and dead code elimination.
 
-The pass operates on LLVM Intermediate Representation (LLVM IR) and analyzes every function present in the module.
+The pass traverses all functions in a module, computes an inlining cost, identifies call sites, performs function inlining using LLVM's `InlineFunction()` utility, removes dead functions, and eliminates unreachable basic blocks.
+
+The implementation was developed using LLVM 18.1.3.
+
+---
+
+## Module Traversal
+
+The pass operates on an LLVM Module.
+
+For every function in the module:
+
+* External declarations are skipped
+* Function information is analyzed
+* Inlining candidates are identified
+* Call sites are examined
+
+Implementation:
+
+```cpp
+for (Function &F : M) {
+    if (F.isDeclaration())
+        continue;
+
+    visitor(F);
+}
+```
+
+---
 
 ## Function Analysis
 
-For every function:
+For every function, the pass computes:
 
-* Function name is collected
-* Number of instructions is calculated
-* Recursive behavior is detected
-* Inlining eligibility is determined
+* Function name
+* Number of arguments
+* Instruction count
+* Recursive status
+* Dead-function status
 
-## Inlining Heuristic
+Instruction count is calculated by traversing all basic blocks and instructions.
 
-A function is considered for inlining when:
+Implementation:
 
-* The function is not recursive
-* The instruction count is below the selected threshold
-* The function body is sufficiently small
+```cpp
+for (auto &BB : F)
+    for (auto &I : BB)
+        instructionCount++;
+```
 
-### Decision Rules
+---
 
-If:
+## Recursive Function Detection
 
-Instruction Count ≤ Threshold
+Recursive functions are detected by examining call instructions inside the function body.
 
-and
+If a function calls itself, it is marked as recursive.
 
-Function is Non-Recursive
+Implementation:
 
-Then:
+```cpp
+if (CB->getCalledFunction() == &F)
+    isRecursive = true;
+```
 
-INLINE
+Recursive functions are never considered for inlining.
 
-Otherwise:
+---
 
-SKIP
+## Inlining Cost Computation
 
-## Dead Code Elimination
+The project uses instruction count as the inlining cost.
 
-After inlining:
+Rules:
 
-* Functions with no remaining call sites are identified
-* Unused functions are removed from the module
+* Cost < 10 → INLINE
+* Cost ≥ 10 → SKIP
 
-## Expected Benefits
+The cost is printed during analysis.
 
-* Reduced function call overhead
-* Improved optimization opportunities
-* Smaller execution path
-* Cleaner LLVM IR
+Example:
 
+```text
+Inlining Cost: 5
+Decision: INLINE
+```
+
+---
+
+## Call Site Analysis
+
+The pass scans all instructions and identifies function call sites using LLVM's `CallBase` abstraction.
+
+Implementation:
+
+```cpp
+if (auto *CB = dyn_cast<CallBase>(&I))
+```
+
+Call-site information is printed during execution.
+
+Example:
+
+```text
+CALL SITE: main -> addOne
+```
+
+---
+
+## Function Inlining
+
+Inlining is performed using LLVM's `InlineFunction()` utility.
+
+Implementation:
+
+```cpp
+InlineFunctionInfo IFI;
+InlineFunction(*CB, IFI);
+```
+
+Successful inlining is reported as:
+
+```text
+INLINE SUCCESS
+```
+
+---
+
+## Dead Function Elimination
+
+After inlining, functions that have no remaining users are considered dead.
+
+Dead functions are removed using:
+
+```cpp
+F->eraseFromParent();
+```
+
+Example:
+
+```text
+REMOVING: addOne
+```
+
+---
+
+## Unreachable Block Elimination
+
+Inlining may introduce unreachable basic blocks.
+
+The pass removes such blocks using:
+
+```cpp
+removeUnreachableBlocks(F);
+```
+
+This simplifies the generated LLVM IR.
+
+---
+
+## LLVM APIs Used
+
+* Module
+* Function
+* BasicBlock
+* Instruction
+* CallBase
+* InlineFunction()
+* InlineFunctionInfo
+* eraseFromParent()
+* removeUnreachableBlocks()
+
+---
+
+## Final Optimization Pipeline
+
+```text
+Module Analysis
+       |
+       v
+Function Analysis
+       |
+       v
+Cost Computation
+       |
+       v
+Recursive Detection
+       |
+       v
+Call Site Analysis
+       |
+       v
+Function Inlining
+       |
+       v
+Dead Function Elimination
+       |
+       v
+Unreachable Block Elimination
+       |
+       v
+Optimized LLVM IR
+```
