@@ -1,14 +1,6 @@
-// Function Inlining with Dead Code Elimination
-//
-// LLVM Optimization Pass
-//
-// Planned Features:
-// 1. Function Analysis
-// 2. Instruction Count Calculation
-// 3. Recursive Function Detection
-// 4. Function Inlining
-// 5. Dead Code Elimination
-//
-// Status:
-// Initial project structure and design completed.
-// LLVM pass implementation in progress.
+#include <iostream>
+
+int main() {
+    std::cout << "Function Inlining with Dead Code Elimination" << std::endl;
+    return 0;
+}
