@@ -143,6 +143,3 @@ Vinod R
 Assignment 12 – Function Inlining with Dead Code Elimination
 
 LLVM 18.1.3
-
-```
-```
