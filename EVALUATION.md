@@ -183,6 +183,3 @@ The LLVM pass successfully implemented:
 * LLVM IR optimization
 
 All evaluation test cases passed successfully.
-
-```
-```
