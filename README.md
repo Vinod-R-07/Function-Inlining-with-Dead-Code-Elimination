@@ -1,20 +1,35 @@
 # Function Inlining with Dead Code Elimination
 
-## Overview
+## Project Overview
 
-This project implements an LLVM optimization pass that performs Function Inlining and Dead Code Elimination.
+This project implements Function Inlining and Dead Code Elimination using the LLVM compiler infrastructure.
 
 Function Inlining replaces calls to small functions with the function body itself, reducing function call overhead and enabling further optimizations.
 
 Dead Code Elimination removes functions and code that become unused after inlining.
 
-## Features
+## Objectives
 
-* Cost-based function inlining
-* Recursive function detection
-* Dead function removal
-* LLVM IR transformation
-* Multiple test cases
+* Analyze functions in LLVM IR
+* Identify functions suitable for inlining
+* Detect recursive functions
+* Inline small functions
+* Remove dead functions after inlining
+* Evaluate optimization effectiveness
+
+## Project Structure
+
+src/ - LLVM pass implementation
+
+testcases/ - input programs used for evaluation
+
+README.md - project overview
+
+DESIGN.md - design details
+
+IMPLEMENTATION.md - implementation details
+
+EVALUATION.md - evaluation and results
 
 ## Test Cases
 
@@ -24,14 +39,26 @@ Dead Code Elimination removes functions and code that become unused after inlini
 4. dead_function.c
 5. multiple_calls.c
 
-## Build
+## Expected Workflow
 
-```bash
-./build.sh
-```
+Input Program
 
-## Run
+↓
 
-```bash
-./run.sh
-```
+Generate LLVM IR
+
+↓
+
+Function Analysis
+
+↓
+
+Inlining Decision
+
+↓
+
+Dead Code Elimination
+
+↓
+
+Optimized LLVM IR
