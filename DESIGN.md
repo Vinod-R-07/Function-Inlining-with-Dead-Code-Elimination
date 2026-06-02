@@ -142,4 +142,3 @@ This cleans up the generated LLVM IR.
 * Optimized LLVM IR is generated
 
 ```
-```
