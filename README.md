@@ -131,7 +131,7 @@ Decision: INLINE
 
 INLINE SUCCESS
 
-REMOVING: addOne
+REMOVING: add
 ```
 
 ---
