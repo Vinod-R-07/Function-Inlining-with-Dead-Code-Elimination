@@ -140,5 +140,3 @@ This cleans up the generated LLVM IR.
 * Dead functions are removed
 * Unreachable blocks are eliminated
 * Optimized LLVM IR is generated
-
-```
